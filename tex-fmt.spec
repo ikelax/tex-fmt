@@ -3,13 +3,14 @@
 Name:		tex-fmt
 Version:	0.5.7
 Release:	1
+Source0:        https://github.com/WGUNDERWOOD/tex-fmt/archive/v%{version}/%{name}-%{version}.tar.gz
+Source1:        %{name}-%{version}-vendor.tar.gz
 Summary:	An extremely fast LaTeX formatter
 URL:		https://github.com/WGUNDERWOOD/tex-fmt
 License:	MIT
 Group:		Publishing
-Source0:        tex-fmt-%{version}.tar.gz
-Source1:        vendor.tar.gz
-BuildRequires:	cargo-rpm-macros >= 24
+
+BuildRequires:	cargo
 
 %description
 tex-fmt is an extremely fast LaTeX formatter with indentation,
@@ -17,9 +18,9 @@ line wrapping and other formatting. It requires minimal configuration
 and handles the LaTeX file typs .tex, .bib, .cls and .sty.
 
 %prep 
-%autosetup -n tex-fmt-%{version} -p1 -a1 
-%setup -n tex-fmt-%{version} -a1
-tar xvfz %{SOURCE1}
+%autosetup -p1
+tar -zxf %{SOURCE1}
+# mkdir -p .cargo
 cat >> Cargo.toml << EOF
 [source.crates-io]
 replace-with = "vendored-sources"
@@ -51,7 +52,7 @@ install -Dm 644 tex-fmt.zsh %{buildroot}%{_datadir}/zsh/site-functions/_tex-fmt
 
 %if %{with check}
 %check
-cargo test --frozen --all-features
+%cargo_test
 %endif
 
 %files
@@ -59,11 +60,8 @@ cargo test --frozen --all-features
 %doc NEWS.md README.md
 %{_mandir}/man1/tex-fmt.1*
 %{_bindir}/tex-fmt
-
 %{_datadir}/bash-completion
-
 %{_datadir}/fish
-
 %{_datadir}/zsh
 
 %changelog
