@@ -1,3 +1,4 @@
+%bcond check 1
 %global debug_package %{nil}
 
 Name:		tex-fmt
@@ -11,27 +12,35 @@ License:	MIT
 Group:		Publishing
 
 BuildRequires:	cargo
+BuildRequires:  rust-packaging
 
 %description
 tex-fmt is an extremely fast LaTeX formatter with indentation,
 line wrapping and other formatting. It requires minimal configuration
 and handles the LaTeX file typs .tex, .bib, .cls and .sty.
 
-%prep 
-%autosetup -p1
-tar -zxf %{SOURCE1}
-mkdir -p .cargo
-cat >> .cargo/config.toml << EOF
-[source.crates-io]
-replace-with = "vendored-sources"
+%prep -a
+# %autosetup -p1
+tar -zxf %{S:1}
+# prep vendored crates
+%cargo_prep -v vendor/
+# mkdir -p .cargo
+# create .cargo/config file from vendoring output
+# cat >> .cargo/config.toml << EOF
+# [source.crates-io]
+# replace-with = "vendored-sources"
+# 
+# [source.vendored-sources]
+# directory = "vendor"
+# 
+# EOF
 
-[source.vendored-sources]
-directory = "vendor"
-
-EOF
-
-%build
-cargo build --frozen --all-features --release
+%build -p
+# %cargo_build
+# cargo build --frozen --all-features --release
+# sort out crate licenses
+%cargo_license_summary
+%{cargo_license} > LICENSES.dependencies
 
 %install
 install -D -d -m 0755 %{buildroot}%{_bindir}
@@ -56,7 +65,7 @@ install -Dm 644 tex-fmt.zsh %{buildroot}%{_datadir}/zsh/site-functions/_tex-fmt
 %endif
 
 %files
-%license LICENSE
+%license LICENSE LICENSES.dependencies
 %doc NEWS.md README.md
 %{_mandir}/man1/tex-fmt.1*
 %{_bindir}/tex-fmt
