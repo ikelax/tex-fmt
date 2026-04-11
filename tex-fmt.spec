@@ -20,8 +20,8 @@ and handles the LaTeX file typs .tex, .bib, .cls and .sty.
 %prep 
 %autosetup -p1
 tar -zxf %{SOURCE1}
-# mkdir -p .cargo
-cat >> Cargo.toml << EOF
+mkdir -p .cargo
+cat >> .cargo/config.toml << EOF
 [source.crates-io]
 replace-with = "vendored-sources"
 
